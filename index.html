@@ -6,7 +6,1020 @@
   <meta name="theme-color" content="#482d1d">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="SEDENA Returns"><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#482d1d">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="SEDENA Returns">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <title>SEDENA Return Inspector</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+  <style>
+    :root {
+      --brand:#482d1d; --brand-light:#fef4df; --accent:#c47e3a;
+      --danger:#E24B4A; --success:#639922; --info:#185FA5;
+      --bg:#f5f0ea; --surface:#fff; --surface2:#f9f6f2;
+      --border:rgba(72,45,29,0.13); --text:#1a1108; --text2:#7a6655;
+      --r:14px;
+    }
+    @media(prefers-color-scheme:dark){
+      :root{ --bg:#1a1108; --surface:#2a1e14; --surface2:#1f1610;
+             --border:rgba(254,244,223,0.12); --text:#fef4df; --text2:#b89a7c;
+             --brand-light:rgba(196,126,58,0.15); }
+    }
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+    html,body{height:100%;overflow:hidden;}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);}
+    #app{display:flex;flex-direction:column;height:100vh;height:100dvh;max-width:430px;margin:0 auto;background:var(--surface);overflow:hidden;}
+    .hdr{background:var(--brand);color:var(--brand-light);padding:50px 18px 12px;display:flex;align-items:center;gap:10px;flex-shrink:0;}
+    .hdr h1{font-size:16px;font-weight:700;}
+    .hdr .sub{font-size:10px;opacity:.6;margin-top:1px;}
+    .stepbar{display:flex;padding:8px 18px;gap:4px;background:var(--brand);flex-shrink:0;}
+    .dot{flex:1;height:3px;border-radius:2px;background:rgba(254,244,223,.22);transition:background .3s;}
+    .dot.done{background:rgba(254,244,223,.6);}
+    .dot.active{background:var(--accent);}
+    .scrl{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px;padding-bottom:90px;}
+    .screen{display:none;flex-direction:column;gap:14px;}
+    .screen.active{display:flex;}
+    .card{background:var(--surface);border:.5px solid var(--border);border-radius:var(--r);padding:14px;}
+    .lbl{font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:7px;}
+    .ai{background:var(--brand-light);border-left:3px solid var(--accent);border-radius:0 12px 12px 0;padding:12px 14px;font-size:13px;line-height:1.65;color:var(--text);}
+    .ai-tag{display:inline-block;background:var(--accent);color:#fff;font-size:8px;font-weight:700;padding:2px 6px;border-radius:3px;letter-spacing:.5px;margin-bottom:6px;}
+    .fg{display:flex;flex-direction:column;gap:4px;}
+    .fg label{font-size:11px;color:var(--text2);font-weight:700;}
+    .fg input,.fg select,.fg textarea{border:1px solid var(--border);border-radius:9px;padding:10px 12px;font-size:15px;font-family:inherit;background:var(--surface2);color:var(--text);width:100%;appearance:none;-webkit-appearance:none;}
+    .fg select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath fill='%23888' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 11px center;padding-right:30px;}
+    .fg textarea{resize:none;min-height:72px;line-height:1.5;}
+    .btn{width:100%;padding:13px;border-radius:11px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;border:none;transition:transform .12s,opacity .12s;display:flex;align-items:center;justify-content:center;gap:7px;}
+    .btn:active{transform:scale(.97);opacity:.87;}
+    .bp{background:var(--brand);color:var(--brand-light);}
+    .bs{background:var(--surface2);border:1px solid var(--border);color:var(--text);}
+    .ba{background:var(--accent);color:#fff;}
+    .bsu{background:var(--success);color:#fff;}
+    .bd{background:var(--danger);color:#fff;}
+    .bsm{padding:9px 13px;font-size:13px;border-radius:9px;}
+    .rg{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+    .ro{border:1px solid var(--border);border-radius:10px;padding:10px 11px;display:flex;align-items:center;gap:7px;cursor:pointer;transition:all .15s;font-size:13px;background:var(--surface2);}
+    .ro.sg{border-color:var(--success);background:rgba(99,153,34,.1);color:var(--success);}
+    .ro.sb{border-color:var(--danger);background:rgba(226,75,74,.1);color:var(--danger);}
+    .cg{display:flex;flex-direction:column;gap:6px;}
+    .ci{display:flex;align-items:center;gap:9px;padding:9px 12px;border:1px solid var(--border);border-radius:9px;cursor:pointer;font-size:13px;transition:all .15s;background:var(--surface2);user-select:none;}
+    .ci.sp{border-color:var(--success);background:rgba(99,153,34,.1);}
+    .ci.sm{border-color:var(--danger);background:rgba(226,75,74,.1);}
+    .ci.sf{border-color:var(--danger);background:rgba(226,75,74,.1);}
+    .cico{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;border:1.5px solid var(--border);background:var(--surface);transition:all .15s;}
+    .sp .cico{background:var(--success);border-color:var(--success);color:#fff;}
+    .sm .cico{background:var(--danger);border-color:var(--danger);color:#fff;}
+    .sf .cico{background:var(--danger);border-color:var(--danger);color:#fff;}
+    .pz{border:1.5px dashed var(--border);border-radius:11px;padding:14px;display:flex;flex-direction:column;align-items:center;gap:7px;background:var(--surface2);position:relative;min-height:80px;justify-content:center;}
+    .pz input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+    .pz.ok{border:1.5px solid var(--success);}
+    .pv{width:100%;height:110px;object-fit:cover;border-radius:9px;}
+    .vbox{border-radius:var(--r);padding:18px;text-align:center;}
+    .vd{background:rgba(226,75,74,.1);border:1.5px solid var(--danger);}
+    .vo{background:rgba(99,153,34,.1);border:1.5px solid var(--success);}
+    .vm{background:rgba(196,126,58,.1);border:1.5px solid var(--accent);}
+    .vtit{font-size:18px;font-weight:700;margin-bottom:7px;}
+    .vtxt{font-size:12px;line-height:1.65;color:var(--text2);}
+    .casebox{background:var(--surface2);border-radius:9px;padding:12px;font-size:11px;line-height:1.75;white-space:pre-wrap;font-family:'Courier New',monospace;border:1px solid var(--border);max-height:200px;overflow-y:auto;}
+    .statg{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .statc{background:var(--surface2);border-radius:11px;padding:14px;text-align:center;border:1px solid var(--border);}
+    .statn{font-size:28px;font-weight:700;}
+    .statl{font-size:10px;color:var(--text2);margin-top:3px;}
+    .hi{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid var(--border);border-radius:11px;background:var(--surface2);}
+    .hdot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+    .hm{flex:1;min-width:0;}
+    .ho{font-size:13px;font-weight:700;}
+    .hs{font-size:10px;color:var(--text2);margin-top:2px;}
+    .spin{width:30px;height:30px;border:3px solid var(--border);border-top-color:var(--brand);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto;}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .ftrbtn{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;padding:10px 16px 26px;background:linear-gradient(transparent,var(--surface) 28%);z-index:50;}
+    .srow{display:flex;justify-content:space-between;align-items:flex-start;padding:8px 0;border-bottom:.5px solid var(--border);gap:10px;font-size:12px;}
+    .srow:last-child{border-bottom:none;}
+    .sk{color:var(--text2);font-size:11px;flex-shrink:0;}
+    .sv{font-weight:700;text-align:right;word-break:break-word;font-size:12px;}
+    .badge{display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:700;}
+    .bdis{background:rgba(226,75,74,.15);color:var(--danger);}
+    .bok{background:rgba(99,153,34,.15);color:var(--success);}
+    .bmon{background:rgba(196,126,58,.15);color:var(--accent);}
+
+    /* ---- SCAN SCREEN SPECIFIC ---- */
+    .scan-hero{background:var(--brand);border-radius:var(--r);padding:20px;color:var(--brand-light);text-align:center;}
+    .scan-hero i{font-size:44px;opacity:.85;}
+    .scan-hero h2{font-size:16px;font-weight:700;margin-top:8px;}
+    .scan-hero p{font-size:12px;opacity:.7;margin-top:5px;line-height:1.5;}
+    .item-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:var(--surface2);cursor:pointer;transition:all .15s;}
+    .item-row:active{transform:scale(.98);}
+    .item-row.selected{border-color:var(--accent);background:rgba(196,126,58,.1);}
+    .item-row.done-inspect{border-color:var(--success);background:rgba(99,153,34,.08);}
+    .item-num{width:26px;height:26px;border-radius:50%;background:var(--brand);color:var(--brand-light);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
+    .item-info{flex:1;min-width:0;}
+    .item-asin{font-size:11px;font-weight:700;color:var(--accent);}
+    .item-name{font-size:12px;margin-top:2px;line-height:1.4;}
+    .item-lpn{font-size:10px;color:var(--text2);margin-top:3px;font-family:monospace;}
+    .data-chip{display:inline-flex;align-items:center;gap:4px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:5px 10px;font-size:11px;font-weight:600;}
+    .data-chip i{font-size:14px;color:var(--accent);}
+    .chips{display:flex;flex-wrap:wrap;gap:6px;}
+    .scan-input-area{position:relative;}
+    .scan-input-area input{font-family:monospace;font-size:14px;letter-spacing:.5px;}
+    .ai-extracted{border-left:3px solid var(--success);background:rgba(99,153,34,.07);border-radius:0 10px 10px 0;padding:10px 12px;font-size:12px;line-height:1.7;}
+  </style>
+</head>
+<body>
+<div id="app">
+  <div class="hdr">
+    <span style="font-size:24px">📦</span>
+    <div>
+      <h1>SEDENA Return Inspector</h1>
+      <div class="sub">Amazon FBA · Returns Audit Tool</div>
+    </div>
+  </div>
+  <div class="stepbar" id="stepbar">
+    <div class="dot active" id="d0"></div>
+    <div class="dot" id="d1"></div>
+    <div class="dot" id="d2"></div>
+    <div class="dot" id="d3"></div>
+    <div class="dot" id="d4"></div>
+    <div class="dot" id="d5"></div>
+    <div class="dot" id="d6"></div>
+  </div>
+
+  <!-- S0: HOME -->
+  <div class="screen active scrl" id="s0">
+    <div style="text-align:center;padding:12px 0 4px;">
+      <div style="font-size:52px">📦</div>
+      <h2 style="font-size:20px;font-weight:700;margin-top:10px;">Return arrived?</h2>
+      <p style="font-size:13px;color:var(--text2);margin-top:6px;line-height:1.6;">Scan the vendor return label first, then inspect each product.</p>
+    </div>
+    <button class="btn bp" onclick="goTo(1)">
+      <i class="ti ti-scan"></i> Scan return label
+    </button>
+    <button class="btn bs" onclick="showHist()">
+      <i class="ti ti-history"></i> View past returns
+    </button>
+    <div class="card" style="background:var(--brand-light);">
+      <div class="lbl">Audit summary</div>
+      <div class="statg">
+        <div class="statc"><div class="statn" id="t0" style="color:var(--brand);">0</div><div class="statl">returns</div></div>
+        <div class="statc"><div class="statn" id="t1" style="color:var(--danger);">0</div><div class="statl">to dispute</div></div>
+        <div class="statc"><div class="statn" id="t2" style="color:var(--accent);">0</div><div class="statl">monitor</div></div>
+        <div class="statc"><div class="statn" id="t3" style="color:var(--success);">0</div><div class="statl">accepted</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S1: SCAN VENDOR RETURN LABEL -->
+  <div class="screen scrl" id="s1">
+    <div class="scan-hero">
+      <i class="ti ti-file-scan"></i>
+      <h2>Step 1 — Scan the vendor return label</h2>
+      <p>This is the large Amazon.com paper label that lists the shipment. Take a photo and AI will extract all product info automatically.</p>
+    </div>
+
+    <div class="card">
+      <div class="lbl">Photo of vendor return label</div>
+      <div class="pz" id="zone_vretlabel">
+        <i class="ti ti-camera" style="font-size:32px;color:var(--text2);"></i>
+        <div style="font-size:13px;font-weight:600;">Tap to photograph the return label</div>
+        <div style="font-size:11px;color:var(--text2);">The big Amazon paper with Shipment ID, VRET, product list</div>
+        <input type="file" accept="image/*" capture="environment" onchange="handleVretPhoto(event)">
+      </div>
+      <div id="vretPhotoPreview" style="display:none;margin-top:10px;">
+        <img id="vretImg" class="pv" style="height:160px;" alt="Return label">
+      </div>
+    </div>
+
+    <div id="aiExtractLoading" style="display:none;text-align:center;padding:20px 0;">
+      <div class="spin"></div>
+      <div style="margin-top:10px;font-size:13px;color:var(--text2);">AI is reading the label…</div>
+    </div>
+
+    <div id="aiExtractResult" style="display:none;flex-direction:column;gap:12px;">
+      <div class="ai-extracted" id="extractedSummary"></div>
+      <div class="card">
+        <div class="lbl">Products found on this return</div>
+        <div id="productList" style="display:flex;flex-direction:column;gap:8px;"></div>
+      </div>
+      <div class="card">
+        <div class="lbl">Or enter manually</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div class="fg">
+            <label>Shipment ID / VRET ID</label>
+            <input type="text" id="manualVret" placeholder="e.g. VRET7648419401531" autocomplete="off">
+          </div>
+          <div class="fg">
+            <label>RA Number</label>
+            <input type="text" id="manualRA" placeholder="e.g. NPCSH-dqBngyQji5-PHX6-1" autocomplete="off">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="manualEntry" class="card" style="display:none;">
+      <div class="lbl">Enter return info manually</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div class="fg">
+          <label>Shipment ID / VRET ID</label>
+          <input type="text" id="manualVret2" placeholder="e.g. VRET7648419401531" autocomplete="off">
+        </div>
+        <div class="fg">
+          <label>RA Number</label>
+          <input type="text" id="manualRA2" placeholder="e.g. NPCSH-dqBngyQji5-PHX6-1" autocomplete="off">
+        </div>
+        <button class="btn bs bsm" onclick="addManualProduct()">+ Add product line</button>
+        <div id="manualProductList" style="display:flex;flex-direction:column;gap:8px;"></div>
+      </div>
+    </div>
+
+    <button class="btn bs bsm" onclick="toggleManual()" style="margin-top:-4px;">
+      <i class="ti ti-keyboard"></i> Enter manually instead
+    </button>
+
+    <div class="ftrbtn">
+      <button class="btn bp" onclick="proceedToLPN()">
+        Products ready — scan LPN labels <i class="ti ti-arrow-right"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- S2: SCAN LPN & PICK PRODUCT -->
+  <div class="screen scrl" id="s2">
+    <div class="ai">
+      <div class="ai-tag">AI</div>
+      Now scan the LPN label on each product bag. The LPN links that physical unit to the line item on the return slip. Scan one, then inspect it before moving to the next.
+    </div>
+
+    <div class="card">
+      <div class="lbl">Shipment <span id="s2VretLabel" style="font-family:monospace;font-size:10px;"></span></div>
+      <div id="s2ProductLines" style="display:flex;flex-direction:column;gap:7px;"></div>
+    </div>
+
+    <div class="card">
+      <div class="lbl">Scan LPN label on product bag</div>
+      <div class="pz" id="zone_lpn">
+        <i class="ti ti-camera" style="font-size:28px;color:var(--text2);"></i>
+        <div style="font-size:13px;font-weight:600;">Photograph LPN label</div>
+        <div style="font-size:11px;color:var(--text2);">Small barcode sticker on the product polybag</div>
+        <input type="file" accept="image/*" capture="environment" onchange="handleLPNPhoto(event)">
+      </div>
+      <div id="lpnResult" style="display:none;margin-top:10px;"></div>
+    </div>
+
+    <div class="card">
+      <div class="lbl">Or type LPN manually</div>
+      <div class="scan-input-area fg">
+        <label>LPN number</label>
+        <input type="text" id="lpnInput" placeholder="e.g. O 508303 3266" autocomplete="off" autocorrect="off" autocapitalize="none">
+      </div>
+      <button class="btn bs bsm" onclick="matchLPN()" style="margin-top:8px;">
+        <i class="ti ti-search"></i> Match to product
+      </button>
+    </div>
+
+    <div id="lpnMatchResult" style="display:none;" class="card">
+      <div class="lbl">Matched product</div>
+      <div id="matchedProductInfo"></div>
+      <button class="btn ba" onclick="startInspectionForMatched()" style="margin-top:12px;">
+        <i class="ti ti-clipboard-check"></i> Inspect this product
+      </button>
+    </div>
+  </div>
+
+  <!-- S3: PHOTOS -->
+  <div class="screen scrl" id="s3">
+    <div class="ai">
+      <div class="ai-tag">AI</div>
+      Take photos BEFORE opening the polybag, then open and photograph the product. These photos are your evidence — the more angles, the stronger the case.
+    </div>
+    <div class="card">
+      <div class="lbl">Inspecting: <span id="s3ProductName" style="color:var(--accent);font-size:10px;font-weight:700;text-transform:none;letter-spacing:0;"></span></div>
+      <div class="chips" style="margin-bottom:12px;">
+        <div class="data-chip"><i class="ti ti-tag"></i><span id="s3ASIN">—</span></div>
+        <div class="data-chip"><i class="ti ti-barcode"></i><span id="s3LPN">—</span></div>
+        <div class="data-chip" id="s3CondChip"><i class="ti ti-alert-triangle" style="color:var(--danger);"></i><span id="s3Cond">—</span></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:11px;">
+        <div>
+          <div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:4px;">📷 LPN label on polybag</div>
+          <div class="pz" id="zp_lpn"><i class="ti ti-camera" style="font-size:24px;color:var(--text2);"></i><span style="font-size:12px;color:var(--text2);">Tap to capture</span><input type="file" accept="image/*" capture="environment" onchange="capPhoto(event,'lpn')"></div>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:4px;">📦 Polybag / packaging outside</div>
+          <div class="pz" id="zp_pkg"><i class="ti ti-camera" style="font-size:24px;color:var(--text2);"></i><span style="font-size:12px;color:var(--text2);">Tap to capture</span><input type="file" accept="image/*" capture="environment" onchange="capPhoto(event,'pkg')"></div>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:4px;">👜 Product — front</div>
+          <div class="pz" id="zp_front"><i class="ti ti-camera" style="font-size:24px;color:var(--text2);"></i><span style="font-size:12px;color:var(--text2);">Tap to capture</span><input type="file" accept="image/*" capture="environment" onchange="capPhoto(event,'front')"></div>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:4px;">👜 Product — back</div>
+          <div class="pz" id="zp_back"><i class="ti ti-camera" style="font-size:24px;color:var(--text2);"></i><span style="font-size:12px;color:var(--text2);">Tap to capture</span><input type="file" accept="image/*" capture="environment" onchange="capPhoto(event,'back')"></div>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:4px;">✨ Accessories (strap, dust bag, charm, box)</div>
+          <div class="pz" id="zp_acc"><i class="ti ti-camera" style="font-size:24px;color:var(--text2);"></i><span style="font-size:12px;color:var(--text2);">Tap to capture</span><input type="file" accept="image/*" capture="environment" onchange="capPhoto(event,'acc')"></div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:8px;font-size:11px;color:var(--text2);" id="photoCount2">0 / 5 photos</div>
+    </div>
+    <div class="ftrbtn">
+      <button class="btn bp" onclick="goTo(4)">Continue to condition check <i class="ti ti-arrow-right"></i></button>
+      <div style="font-size:10px;color:var(--text2);text-align:center;margin-top:6px;">Photos optional — you can skip</div>
+    </div>
+  </div>
+
+  <!-- S4: CONDITION -->
+  <div class="screen scrl" id="s4">
+    <div class="ai"><div class="ai-tag">AI</div>Inspect carefully. Your honest answers are the evidence for any dispute with Amazon.</div>
+    <div class="card">
+      <div class="lbl">Condition</div>
+      <div style="display:flex;flex-direction:column;gap:11px;">
+        <div>
+          <div style="font-size:12px;font-weight:700;margin-bottom:7px;">Is the product physically damaged?</div>
+          <div class="rg">
+            <div class="ro" id="r_dn" onclick="pickR('damaged','no')"><i class="ti ti-circle-check" style="color:var(--success);font-size:16px;"></i> Not damaged</div>
+            <div class="ro" id="r_dy" onclick="pickR('damaged','yes')"><i class="ti ti-circle-x" style="color:var(--danger);font-size:16px;"></i> Damaged</div>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:700;margin-bottom:7px;">Signs of use or wear?</div>
+          <div class="rg">
+            <div class="ro" id="r_un" onclick="pickR('used','no')"><i class="ti ti-circle-check" style="color:var(--success);font-size:16px;"></i> Like new</div>
+            <div class="ro" id="r_uy" onclick="pickR('used','yes')"><i class="ti ti-circle-x" style="color:var(--danger);font-size:16px;"></i> Clearly used</div>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:700;margin-bottom:7px;">Sellable as new?</div>
+          <div class="rg">
+            <div class="ro" id="r_sy" onclick="pickR('sellable','yes')"><i class="ti ti-circle-check" style="color:var(--success);font-size:16px;"></i> Yes, sellable</div>
+            <div class="ro" id="r_sn" onclick="pickR('sellable','no')"><i class="ti ti-circle-x" style="color:var(--danger);font-size:16px;"></i> Not sellable</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="lbl">Accessories — tap: ✓ present · ✗ missing · ? unknown</div>
+      <div class="cg" id="accList">
+        <div class="ci" onclick="cycleAcc(this,'bag')"><div class="cico">?</div><span>Bag itself</span></div>
+        <div class="ci" onclick="cycleAcc(this,'strap')"><div class="cico">?</div><span>Replaceable strap</span></div>
+        <div class="ci" onclick="cycleAcc(this,'dustbag')"><div class="cico">?</div><span>Dust bag</span></div>
+        <div class="ci" onclick="cycleAcc(this,'box')"><div class="cico">?</div><span>Original box</span></div>
+        <div class="ci" onclick="cycleAcc(this,'charm')"><div class="cico">?</div><span>Anti-theft charm</span></div>
+        <div class="ci" onclick="cycleAcc(this,'rfid')"><div class="cico">?</div><span>RFID slots intact</span></div>
+        <div class="ci" onclick="cycleAcc(this,'zipper')"><div class="cico">?</div><span>Zippers working</span></div>
+        <div class="ci" onclick="cycleAcc(this,'hardware')"><div class="cico">?</div><span>Hardware intact</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="lbl">Red flags — tap to flag</div>
+      <div class="cg">
+        <div class="ci" onclick="togFlag(this,'wrongItem')"><div class="cico">!</div><span>Wrong item returned</span></div>
+        <div class="ci" onclick="togFlag(this,'receipt')"><div class="cico">!</div><span>Other store receipt inside</span></div>
+        <div class="ci" onclick="togFlag(this,'smell')"><div class="cico">!</div><span>Smell / stain / marks</span></div>
+        <div class="ci" onclick="togFlag(this,'fraud')"><div class="cico">!</div><span>Obvious return fraud</span></div>
+        <div class="ci" onclick="togFlag(this,'swapped')"><div class="cico">!</div><span>Item was swapped</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="fg"><label>Your inspection notes</label>
+        <textarea id="notes" placeholder="e.g. Product is in perfect condition, not damaged. All accessories present. Amazon marked damaged but it is 100% sellable."></textarea>
+      </div>
+    </div>
+    <div class="ftrbtn">
+      <button class="btn ba" onclick="runAI()"><i class="ti ti-cpu"></i> Analyze with AI</button>
+    </div>
+  </div>
+
+  <!-- S5: VERDICT -->
+  <div class="screen scrl" id="s5">
+    <div id="loadV" style="text-align:center;padding:44px 0;display:flex;flex-direction:column;gap:14px;align-items:center;">
+      <div class="spin"></div>
+      <div style="font-size:14px;font-weight:700;" id="loadMsg">Analyzing…</div>
+      <div style="font-size:12px;color:var(--text2);">Checking dispute eligibility</div>
+    </div>
+    <div id="showV" style="display:none;flex-direction:column;gap:14px;">
+      <div class="vbox" id="vbox">
+        <div style="font-size:12px;font-weight:700;letter-spacing:.5px;opacity:.6;margin-bottom:5px;" id="vlabel"></div>
+        <div class="vtit" id="vtit"></div>
+        <div class="vtxt" id="vtxt"></div>
+      </div>
+      <div class="card" id="caseCard">
+        <div class="lbl" style="margin-bottom:7px;">Amazon Seller Support — case template</div>
+        <div class="casebox" id="caseTpl"></div>
+        <div style="display:flex;gap:7px;margin-top:9px;">
+          <button class="btn bs bsm" onclick="copyCase()" style="flex:1;"><i class="ti ti-copy"></i> Copy</button>
+          <button class="btn bs bsm" onclick="shareCase()" style="flex:1;"><i class="ti ti-share"></i> Share</button>
+        </div>
+      </div>
+      <div class="ftrbtn">
+        <button class="btn bp" onclick="goTo(6)">Save to audit log <i class="ti ti-arrow-right"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- S6: SAVE -->
+  <div class="screen scrl" id="s6">
+    <div class="ai"><div class="ai-tag">AI</div>Inspection complete. Save this entry to keep your audit trail.</div>
+    <div class="card"><div class="lbl">Summary</div><div id="sumRows"></div></div>
+    <div class="card">
+      <div class="lbl" style="margin-bottom:9px;">Save & export</div>
+      <div style="display:flex;flex-direction:column;gap:7px;">
+        <button class="btn bsu" onclick="saveIt()"><i class="ti ti-device-floppy"></i> Save to audit log</button>
+        <button class="btn bs" onclick="expCSV()"><i class="ti ti-download"></i> Download CSV</button>
+        <button class="btn bs" onclick="copySheets()"><i class="ti ti-copy"></i> Copy for Google Sheets</button>
+        <button class="btn bs" onclick="shareEntry()"><i class="ti ti-share"></i> Share this entry</button>
+      </div>
+    </div>
+    <div class="card" style="background:var(--brand-light);">
+      <div id="nextProductActions" style="display:none;flex-direction:column;gap:7px;">
+        <div style="font-size:12px;font-weight:700;color:var(--brand);margin-bottom:4px;">📦 More products on this return?</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:6px;" id="remainingCount"></div>
+        <button class="btn ba bsm" onclick="nextProduct()"><i class="ti ti-scan"></i> Inspect next product</button>
+      </div>
+      <div id="allDoneMsg" style="display:none;font-size:12px;color:var(--text2);line-height:1.6;">
+        <strong style="color:var(--brand);">✅ All products inspected!</strong> Export all as CSV below.
+        <button class="btn bs bsm" onclick="expAllCSV()" style="margin-top:8px;"><i class="ti ti-download"></i> Export all from this shipment</button>
+      </div>
+      <div style="font-size:11px;color:var(--text2);line-height:1.6;margin-top:8px;">
+        <strong style="color:var(--brand);">Sheets tip:</strong> Paste CSV into your Return Inspection Log tab.
+      </div>
+    </div>
+    <div style="height:10px;"></div>
+    <button class="btn bp" onclick="goTo(0)"><i class="ti ti-home"></i> Done — back to home</button>
+  </div>
+
+  <!-- S7: HISTORY -->
+  <div class="screen scrl" id="s7">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+      <h2 style="font-size:17px;font-weight:700;">Past returns</h2>
+      <button class="btn bs bsm" style="width:auto;" onclick="goTo(0)"><i class="ti ti-arrow-left"></i> Back</button>
+    </div>
+    <button class="btn bs bsm" onclick="expAllCSV(true)" style="margin-bottom:4px;"><i class="ti ti-download"></i> Export all as CSV</button>
+    <div id="histList" style="display:flex;flex-direction:column;gap:7px;"></div>
+    <div id="histEmpty" style="display:none;text-align:center;padding:44px 0;color:var(--text2);">
+      <div style="font-size:42px;margin-bottom:8px;">📭</div>
+      <div style="font-size:14px;font-weight:700;">No returns logged yet</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+//  CONFIG — change PROXY_URL after deploying your Cloudflare Worker
+// ============================================================
+const PROXY_URL = 'https://returnsmanagement.nathalce.workers.dev';
+// Replace above with your actual worker URL after setup
+
+// ============================================================
+//  STATE
+// ============================================================
+const ST = {
+  step:0,
+  // current shipment
+  shipment: null,   // { vretId, raNum, processDate, products:[{asin,name,qty,lpn?,condition,inspected?}] }
+  currentProductIdx: null,
+  // current inspection
+  photos:{}, radios:{}, accessories:{}, flags:{}, verdict:null, caseText:null,
+  // accumulators for multi-product
+  sessionEntries:[]   // entries saved this session (for batch export)
+};
+let accStates={}, flagStates={};
+let history=JSON.parse(localStorage.getItem('sedena_v3')||'[]');
+
+// ============================================================
+//  NAV
+// ============================================================
+function goTo(n){
+  if(n===6) buildSummary();
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('s'+n).classList.add('active');
+  ST.step=n; updateDots();
+  document.querySelectorAll('.scrl').forEach(s=>s.scrollTop=0);
+}
+function updateDots(){
+  for(let i=0;i<7;i++){
+    const d=document.getElementById('d'+i); if(!d)continue;
+    d.className='dot'+(i<ST.step?' done':i===ST.step?' active':'');
+  }
+}
+function showHist(){
+  goTo(7);
+  const list=document.getElementById('histList');
+  const empty=document.getElementById('histEmpty');
+  list.innerHTML='';
+  if(!history.length){empty.style.display='block';return;}
+  empty.style.display='none';
+  history.forEach(r=>{
+    const c=r.verdict==='DISPUTE'?'var(--danger)':r.verdict==='ACCEPT'?'var(--success)':'var(--accent)';
+    const bc=r.verdict==='DISPUTE'?'bdis':r.verdict==='ACCEPT'?'bok':'bmon';
+    list.innerHTML+=`<div class="hi">
+      <div class="hdot" style="background:${c}"></div>
+      <div class="hm">
+        <div class="ho">${r.orderId||r.asin||'Unknown'}</div>
+        <div class="hs">${r.sku||'—'} · ${r.date} · <span class="badge ${bc}">${r.verdict||'?'}</span></div>
+      </div></div>`;
+  });
+}
+function updateStats(){
+  document.getElementById('t0').textContent=history.length;
+  document.getElementById('t1').textContent=history.filter(r=>r.verdict==='DISPUTE').length;
+  document.getElementById('t2').textContent=history.filter(r=>r.verdict==='MONITOR').length;
+  document.getElementById('t3').textContent=history.filter(r=>r.verdict==='ACCEPT').length;
+}
+updateStats();
+
+// ============================================================
+//  S1: VRET LABEL SCAN + AI EXTRACTION
+// ============================================================
+async function handleVretPhoto(e){
+  const file=e.target.files[0]; if(!file)return;
+  const reader=new FileReader();
+  reader.onload=async ev=>{
+    const b64=ev.target.result.split(',')[1];
+    const preview=document.getElementById('vretPhotoPreview');
+    document.getElementById('vretImg').src=ev.target.result;
+    preview.style.display='block';
+    document.getElementById('aiExtractLoading').style.display='block';
+    document.getElementById('aiExtractResult').style.display='none';
+
+    try {
+      const resp=await fetch(PROXY_URL,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          model:'claude-sonnet-4-20250514',
+          max_tokens:1000,
+          messages:[{role:'user',content:[
+            {type:'image',source:{type:'base64',media_type:file.type||'image/jpeg',data:b64}},
+            {type:'text',text:`This is an Amazon vendor return label. Extract ALL information from it.
+Return ONLY valid JSON with no extra text:
+{
+  "vretId": "VRET or Shipment ID value",
+  "raNum": "RA number",
+  "processDate": "date string",
+  "classification": "e.g. DAMAGED",
+  "shippedFrom": "address",
+  "barcode": "barcode number visible",
+  "products": [
+    {
+      "lineNum": 1,
+      "asin": "ASIN code",
+      "name": "full product name",
+      "qty": 1,
+      "upc": "UPC/EAN if visible"
+    }
+  ]
+}`}
+          ]}]
+        })
+      });
+      const data=await resp.json();
+      const raw=data.content.map(b=>b.text||'').join('').replace(/\`\`\`json|\`\`\`/g,'').trim();
+      const result=JSON.parse(raw);
+      document.getElementById('aiExtractLoading').style.display='none';
+      renderExtracted(result);
+    } catch(err){
+      document.getElementById('aiExtractLoading').style.display='none';
+      document.getElementById('aiExtractResult').style.display='flex';
+      document.getElementById('extractedSummary').textContent='Could not auto-read label. Please enter details manually.';
+      document.getElementById('manualEntry').style.display='block';
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+function renderExtracted(r){
+  ST.shipment={
+    vretId: r.vretId||'',
+    raNum: r.raNum||'',
+    processDate: r.processDate||'',
+    classification: r.classification||'',
+    products: (r.products||[]).map(p=>({...p,lpn:'',inspected:false}))
+  };
+  document.getElementById('extractedSummary').innerHTML=
+    `<strong style="color:var(--brand);">✅ Label read successfully</strong><br>
+     VRET: ${r.vretId||'—'} · RA: ${r.raNum||'—'} · Date: ${r.processDate||'—'}<br>
+     Classification: <strong style="color:var(--danger);">${r.classification||'—'}</strong> · ${(r.products||[]).length} product(s) found`;
+  const pl=document.getElementById('productList'); pl.innerHTML='';
+  (ST.shipment.products||[]).forEach((p,i)=>{
+    pl.innerHTML+=`<div class="item-row" id="prow_${i}">
+      <div class="item-num">${i+1}</div>
+      <div class="item-info">
+        <div class="item-asin">${p.asin||'No ASIN'}</div>
+        <div class="item-name">${p.name||'Unknown product'}</div>
+        <div class="item-lpn">LPN not yet scanned</div>
+      </div>
+      <i class="ti ti-clock" style="color:var(--text2);font-size:16px;" id="picon_${i}"></i>
+    </div>`;
+  });
+  document.getElementById('aiExtractResult').style.display='flex';
+}
+
+function toggleManual(){
+  const m=document.getElementById('manualEntry');
+  m.style.display=m.style.display==='none'?'block':'none';
+}
+let manualProds=[];
+function addManualProduct(){
+  const idx=manualProds.length;
+  manualProds.push({asin:'',name:'',qty:1,lpn:'',inspected:false});
+  const list=document.getElementById('manualProductList');
+  list.innerHTML+=`<div style="display:flex;flex-direction:column;gap:6px;padding:10px;border:1px solid var(--border);border-radius:9px;background:var(--surface);">
+    <div class="fg"><label>ASIN</label><input type="text" onchange="manualProds[${idx}].asin=this.value" placeholder="X004VSKC0B" autocomplete="off"></div>
+    <div class="fg"><label>Product name</label><input type="text" onchange="manualProds[${idx}].name=this.value" placeholder="Sedena Laptop Bag Burgundy" autocomplete="off"></div>
+    <div class="fg"><label>Qty</label><input type="number" onchange="manualProds[${idx}].qty=parseInt(this.value)||1" value="1" min="1"></div>
+  </div>`;
+}
+
+function proceedToLPN(){
+  if(!ST.shipment||!ST.shipment.products||!ST.shipment.products.length){
+    // build from manual entry
+    const v2=document.getElementById('manualVret2').value||document.getElementById('manualVret').value||'manual';
+    const ra=document.getElementById('manualRA2').value||document.getElementById('manualRA').value||'';
+    ST.shipment={vretId:v2,raNum:ra,processDate:new Date().toLocaleDateString(),classification:'',products:manualProds.length?manualProds:[{asin:'',name:'Product 1',qty:1,lpn:'',inspected:false}]};
+  }
+  renderS2();
+  goTo(2);
+}
+
+// ============================================================
+//  S2: LPN SCAN + MATCH
+// ============================================================
+function renderS2(){
+  document.getElementById('s2VretLabel').textContent=ST.shipment.vretId||'';
+  const lines=document.getElementById('s2ProductLines'); lines.innerHTML='';
+  ST.shipment.products.forEach((p,i)=>{
+    const done=p.inspected;
+    lines.innerHTML+=`<div class="item-row ${done?'done-inspect':''}" id="s2row_${i}">
+      <div class="item-num" style="${done?'background:var(--success)':''}">${done?'✓':i+1}</div>
+      <div class="item-info">
+        <div class="item-asin">${p.asin||'—'}</div>
+        <div class="item-name">${p.name||'—'}</div>
+        <div class="item-lpn">${p.lpn?'LPN: '+p.lpn:'Awaiting LPN scan'}</div>
+      </div>
+      <i class="ti ti-${done?'circle-check':'clock'}" style="color:${done?'var(--success)':'var(--text2)'};font-size:16px;"></i>
+    </div>`;
+  });
+}
+
+async function handleLPNPhoto(e){
+  const file=e.target.files[0]; if(!file)return;
+  const reader=new FileReader();
+  reader.onload=async ev=>{
+    const b64=ev.target.result.split(',')[1];
+    document.getElementById('lpnResult').style.display='block';
+    document.getElementById('lpnResult').innerHTML='<div class="spin" style="margin:8px auto;"></div>';
+    try{
+      const resp=await fetch(PROXY_URL,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          model:'claude-sonnet-4-20250514',
+          max_tokens:200,
+          messages:[{role:'user',content:[
+            {type:'image',source:{type:'base64',media_type:file.type||'image/jpeg',data:b64}},
+            {type:'text',text:'Read the LPN number from this label. Return ONLY JSON: {"lpn":"the full LPN number as shown"}'}
+          ]}]
+        })
+      });
+      const data=await resp.json();
+      const raw=data.content.map(b=>b.text||'').join('').replace(/\`\`\`json|\`\`\`/g,'').trim();
+      const result=JSON.parse(raw);
+      document.getElementById('lpnInput').value=result.lpn||'';
+      document.getElementById('lpnResult').innerHTML=`<div style="font-size:12px;color:var(--success);font-weight:700;">✓ LPN read: ${result.lpn}</div>`;
+      matchLPN();
+    }catch(err){
+      document.getElementById('lpnResult').innerHTML='<div style="font-size:12px;color:var(--danger);">Could not read LPN — type it manually below.</div>';
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+function matchLPN(){
+  const lpn=document.getElementById('lpnInput').value.trim();
+  if(!lpn){alert('Enter an LPN number first.');return;}
+  // Find unmatched product (if only one unmatched, auto-match; else try to match by lpn)
+  const unmatched=ST.shipment.products.filter(p=>!p.inspected);
+  if(!unmatched.length){showToast('All products already inspected!');return;}
+  // Try exact match first
+  let matched=ST.shipment.products.find(p=>p.lpn&&p.lpn.replace(/\s/g,'')===lpn.replace(/\s/g,''));
+  if(!matched){
+    if(unmatched.length===1){
+      // Auto-assign to the only remaining product
+      matched=unmatched[0];
+      matched.lpn=lpn;
+    } else {
+      // Show picker
+      showLPNPicker(lpn, unmatched);
+      return;
+    }
+  }
+  matched.lpn=lpn;
+  ST.currentProductIdx=ST.shipment.products.indexOf(matched);
+  showMatchedProduct(matched);
+}
+
+function showLPNPicker(lpn, options){
+  const res=document.getElementById('lpnMatchResult');
+  res.style.display='block';
+  document.getElementById('matchedProductInfo').innerHTML=`
+    <div style="font-size:12px;color:var(--text2);margin-bottom:10px;">Multiple products on this return. Which one does LPN <strong>${lpn}</strong> belong to?</div>
+    ${options.map((p,i)=>`<div class="item-row" style="margin-bottom:6px;" onclick="assignLPNto('${lpn}',${ST.shipment.products.indexOf(p)})">
+      <div class="item-num">${ST.shipment.products.indexOf(p)+1}</div>
+      <div class="item-info"><div class="item-asin">${p.asin||'—'}</div><div class="item-name">${p.name||'—'}</div></div>
+    </div>`).join('')}`;
+  document.getElementById('lpnMatchResult').querySelector('button').style.display='none';
+}
+
+function assignLPNto(lpn,idx){
+  ST.shipment.products[idx].lpn=lpn;
+  ST.currentProductIdx=idx;
+  showMatchedProduct(ST.shipment.products[idx]);
+  const btn=document.getElementById('lpnMatchResult').querySelector('button');
+  if(btn)btn.style.display='flex';
+}
+
+function showMatchedProduct(p){
+  const res=document.getElementById('lpnMatchResult');
+  res.style.display='block';
+  document.getElementById('matchedProductInfo').innerHTML=`
+    <div class="chips">
+      <div class="data-chip"><i class="ti ti-tag"></i>${p.asin||'No ASIN'}</div>
+      <div class="data-chip"><i class="ti ti-barcode"></i>${p.lpn||'—'}</div>
+    </div>
+    <div style="font-size:13px;font-weight:700;margin-top:8px;line-height:1.4;">${p.name||'—'}</div>`;
+  const btn=document.getElementById('lpnMatchResult').querySelector('button');
+  if(btn)btn.style.display='flex';
+}
+
+function startInspectionForMatched(){
+  const p=ST.shipment.products[ST.currentProductIdx];
+  // Reset inspection state
+  ST.photos={}; ST.radios={}; ST.accessories={}; ST.flags={}; ST.verdict=null; ST.caseText=null;
+  accStates={}; flagStates={};
+  // Reset radios
+  ['r_dn','r_dy','r_un','r_uy','r_sy','r_sn'].forEach(id=>{const el=document.getElementById(id);if(el)el.className='ro';});
+  document.querySelectorAll('#accList .ci').forEach(el=>{el.className='ci';el.querySelector('.cico').textContent='?';});
+  document.querySelectorAll('#s4 .cg .ci').forEach(el=>{if(!el.closest('#accList')){el.className='ci';el.querySelector('.cico').textContent='!';}});
+  document.getElementById('notes').value='';
+  // Reset photo zones
+  resetPhotoZones();
+  // Fill product info in S3 header
+  document.getElementById('s3ProductName').textContent=p.name||'—';
+  document.getElementById('s3ASIN').textContent=p.asin||'—';
+  document.getElementById('s3LPN').textContent=p.lpn||'—';
+  document.getElementById('s3Cond').textContent=ST.shipment.classification||'—';
+  document.getElementById('photoCount2').textContent='0 / 5 photos';
+  goTo(3);
+}
+
+function resetPhotoZones(){
+  ['lpn','pkg','front','back','acc'].forEach(k=>{
+    const z=document.getElementById('zp_'+k); if(!z)return;
+    z.className='pz';
+    z.innerHTML=`<i class="ti ti-camera" style="font-size:24px;color:var(--text2);"></i><span style="font-size:12px;color:var(--text2);">Tap to capture</span><input type="file" accept="image/*" capture="environment" onchange="capPhoto(event,'${k}')">`;
+  });
+}
+
+// ============================================================
+//  S3: PHOTOS
+// ============================================================
+function capPhoto(e,key){
+  const file=e.target.files[0]; if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    ST.photos[key]=ev.target.result;
+    const z=document.getElementById('zp_'+key);
+    z.className='pz ok';
+    z.innerHTML=`<img class="pv" src="${ev.target.result}" alt="photo"><div style="font-size:10px;color:var(--success);font-weight:700;text-align:center;margin-top:4px;">✓ Captured · tap to retake</div><input type="file" accept="image/*" capture="environment" onchange="capPhoto(event,'${key}')">`;
+    document.getElementById('photoCount2').textContent=Object.keys(ST.photos).length+' / 5 photos';
+  };
+  reader.readAsDataURL(file);
+}
+
+// ============================================================
+//  S4: CONDITION
+// ============================================================
+function pickR(key,val){
+  ST.radios[key]=val;
+  const map={damaged:{no:'r_dn',yes:'r_dy'},used:{no:'r_un',yes:'r_uy'},sellable:{yes:'r_sy',no:'r_sn'}};
+  const ids=map[key];
+  Object.values(ids).forEach(id=>{const el=document.getElementById(id);if(el)el.className='ro';});
+  const el=document.getElementById(ids[val]);
+  if(el)el.className='ro '+(val==='no'||val==='yes'&&key==='sellable'?'sg':'sb');
+}
+function cycleAcc(el,key){
+  const cur=accStates[key]||0; const next=(cur+1)%3; accStates[key]=next;
+  el.className='ci'+(next===1?' sp':next===2?' sm':'');
+  el.querySelector('.cico').textContent=next===1?'✓':next===2?'✗':'?';
+  ST.accessories[key]=next===1?'present':next===2?'missing':'unknown';
+}
+function togFlag(el,key){
+  const on=flagStates[key]=!flagStates[key];
+  el.className='ci'+(on?' sf':'');
+  ST.flags[key]=on;
+}
+
+// ============================================================
+//  S5: AI VERDICT
+// ============================================================
+async function runAI(){
+  goTo(5);
+  document.getElementById('loadV').style.display='flex';
+  document.getElementById('showV').style.display='none';
+  const msgs=['Analyzing inspection…','Checking Amazon policy…','Reviewing evidence…','Drafting case…'];
+  let mi=0;
+  const tick=setInterval(()=>{mi=(mi+1)%msgs.length;const el=document.getElementById('loadMsg');if(el)el.textContent=msgs[mi];},1300);
+  const p=ST.shipment.products[ST.currentProductIdx]||{};
+  const missing=Object.entries(ST.accessories).filter(([,v])=>v==='missing').map(([k])=>k);
+  const flags=Object.entries(ST.flags).filter(([,v])=>v).map(([k])=>k);
+  const prompt=`Amazon FBA return dispute expert. Analyze this return and give verdict.
+
+RETURN:
+- Product: ${p.name||'SEDENA bag'}
+- ASIN: ${p.asin||'—'}
+- LPN: ${p.lpn||'—'}
+- VRET/Shipment: ${ST.shipment.vretId||'—'}
+- RA: ${ST.shipment.raNum||'—'}
+- Amazon classification: ${ST.shipment.classification||'—'}
+- Product damaged (seller): ${ST.radios.damaged||'unknown'}
+- Used/worn: ${ST.radios.used||'unknown'}
+- Sellable as new: ${ST.radios.sellable||'unknown'}
+- Missing: ${missing.length?missing.join(', '):'none'}
+- Red flags: ${flags.length?flags.join(', '):'none'}
+- Photos: ${Object.keys(ST.photos).join(', ')||'none'}
+- Notes: ${document.getElementById('notes').value||'none'}
+
+Return ONLY JSON:
+{"verdict":"DISPUTE|MONITOR|ACCEPT","verdictTitle":"5-7 words","verdictExplanation":"2-3 sentences","caseText":"full Amazon SS message if DISPUTE/MONITOR else empty"}`;
+
+  try{
+    const resp=await fetch(PROXY_URL,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1200,messages:[{role:'user',content:prompt}]})
+    });
+    clearInterval(tick);
+    const data=await resp.json();
+    const raw=data.content.map(b=>b.text||'').join('').replace(/\`\`\`json|\`\`\`/g,'').trim();
+    const result=JSON.parse(raw);
+    ST.verdict=result.verdict; ST.caseText=result.caseText;
+    renderVerdict(result);
+  }catch(err){
+    clearInterval(tick);
+    const fb=fallback(ST.radios.damaged,ST.shipment.classification,missing,flags,p);
+    ST.verdict=fb.verdict; ST.caseText=fb.caseText;
+    renderVerdict(fb);
+  }
+}
+
+function fallback(damaged,amzCond,missing,flags,p){
+  const bad=amzCond&&/damage|unsell|defect/i.test(amzCond);
+  const notDmg=damaged==='no'; const hasMiss=missing.length>0;
+  const hasFraud=flags.some(f=>/fraud|wrong|swap|receipt/.test(f));
+  let verdict,verdictTitle,verdictExplanation,caseText='';
+  if(bad&&notDmg){
+    verdict='DISPUTE'; verdictTitle='Open case — misclassified as damaged';
+    verdictExplanation='Amazon marked this return as '+amzCond+' but your inspection shows no damage. This is a strong dispute — Amazon may owe you reimbursement for the incorrect classification.';
+    caseText=`Hello Amazon Seller Support,\n\nOrder/Return: ${p.asin||'—'} · LPN: ${p.lpn||'—'} · Shipment: ${ST.shipment.vretId||'—'}\n\nThis return was classified as "${amzCond}" but after physically inspecting the unit, the product is NOT damaged. It is intact and sellable.\n\nI have photographic evidence showing the product is in perfect condition. The classification appears incorrect.\n\nPlease review and reimburse the incorrect deduction related to this return.\n\nThank you.`;
+  } else if(hasMiss){
+    verdict='DISPUTE'; verdictTitle='Dispute — incomplete return';
+    verdictExplanation='Return arrived missing: '+missing.join(', ')+'. You may claim reimbursement for the missing components.';
+    caseText=`Hello,\n\nReturn for ${p.asin||'—'} (LPN: ${p.lpn||'—'}) arrived incomplete.\nMissing: ${missing.join(', ')}.\n\nPlease reimburse for the incomplete return.\n\nThank you.`;
+  } else if(hasFraud){
+    verdict='DISPUTE'; verdictTitle='Escalate — suspected return fraud';
+    verdictExplanation='Red flags found during inspection. Escalate with photographic evidence immediately.';
+    caseText=`Hello,\n\nSuspected fraudulent return for ${p.asin||'—'} (LPN: ${p.lpn||'—'}).\nFlags: ${flags.join(', ')}.\n\nPlease escalate to your returns investigation team.\n\nThank you.`;
+  } else if(notDmg){
+    verdict='MONITOR'; verdictTitle='Monitor — check settlement report';
+    verdictExplanation='No obvious dispute now but monitor your next disbursement for unexpected deductions from this return.';
+  } else {
+    verdict='ACCEPT'; verdictTitle='No dispute needed';
+    verdictExplanation='Return classification matches your inspection. No case needed at this time.';
+  }
+  return {verdict,verdictTitle,verdictExplanation,caseText};
+}
+
+function renderVerdict(r){
+  document.getElementById('loadV').style.display='none';
+  const vv=document.getElementById('showV'); vv.style.display='flex';
+  const box=document.getElementById('vbox');
+  box.className='vbox '+(r.verdict==='DISPUTE'?'vd':r.verdict==='ACCEPT'?'vo':'vm');
+  const labs={DISPUTE:'⚠️ OPEN A CASE',MONITOR:'👀 MONITOR',ACCEPT:'✅ NO ACTION NEEDED'};
+  document.getElementById('vlabel').textContent=labs[r.verdict]||r.verdict;
+  document.getElementById('vtit').textContent=r.verdictTitle||'';
+  document.getElementById('vtxt').textContent=r.verdictExplanation||'';
+  const cc=document.getElementById('caseCard');
+  if(r.caseText){cc.style.display='block';document.getElementById('caseTpl').textContent=r.caseText;}
+  else cc.style.display='none';
+}
+function copyCase(){navigator.clipboard.writeText(ST.caseText||'').then(()=>toast('✅ Copied!')).catch(()=>alert('Select and copy manually.'));}
+function shareCase(){if(navigator.share&&ST.caseText)navigator.share({title:'Amazon Case',text:ST.caseText});else copyCase();}
+
+// ============================================================
+//  S6: SAVE
+// ============================================================
+function buildSummary(){
+  const p=ST.shipment?.products?.[ST.currentProductIdx]||{};
+  const missing=Object.entries(ST.accessories).filter(([,v])=>v==='missing').map(([k])=>k);
+  const rows=[
+    ['Product',p.name||'—'],['ASIN',p.asin||'—'],['LPN',p.lpn||'—'],
+    ['Shipment',ST.shipment?.vretId||'—'],['RA',ST.shipment?.raNum||'—'],
+    ['Amazon classification',ST.shipment?.classification||'—'],
+    ['Damaged?',ST.radios.damaged==='yes'?'⚠️ Yes':ST.radios.damaged==='no'?'✓ Not damaged':'—'],
+    ['Used?',ST.radios.used==='yes'?'Yes':ST.radios.used==='no'?'No':'—'],
+    ['Sellable?',ST.radios.sellable==='yes'?'Yes':ST.radios.sellable==='no'?'No':'—'],
+    ['Missing',missing.join(', ')||'None'],
+    ['Photos',Object.keys(ST.photos).length+'/5'],
+    ['Verdict',ST.verdict||'—'],
+  ];
+  document.getElementById('sumRows').innerHTML=rows.map(([k,v])=>`<div class="srow"><span class="sk">${k}</span><span class="sv">${v}</span></div>`).join('');
+  // Next product logic
+  const remaining=(ST.shipment?.products||[]).filter(p=>!p.inspected).length-1;
+  const nextDiv=document.getElementById('nextProductActions');
+  const doneDiv=document.getElementById('allDoneMsg');
+  if(remaining>0){nextDiv.style.display='flex';doneDiv.style.display='none';document.getElementById('remainingCount').textContent=remaining+' product(s) still need inspection on this shipment.';}
+  else{nextDiv.style.display='none';doneDiv.style.display='block';}
+}
+
+function getEntry(){
+  const p=ST.shipment?.products?.[ST.currentProductIdx]||{};
+  return {
+    id:Date.now(), date:new Date().toLocaleDateString(),
+    orderId:ST.shipment?.vretId||'',asin:p.asin||'',sku:p.name||'',lpn:p.lpn||'',
+    raNum:ST.shipment?.raNum||'',classification:ST.shipment?.classification||'',
+    damaged:ST.radios.damaged||'',used:ST.radios.used||'',sellable:ST.radios.sellable||'',
+    missing:Object.entries(ST.accessories).filter(([,v])=>v==='missing').map(([k])=>k).join('; '),
+    flags:Object.entries(ST.flags).filter(([,v])=>v).map(([k])=>k).join('; '),
+    notes:document.getElementById('notes')?.value||'',
+    verdict:ST.verdict||'',photoCount:Object.keys(ST.photos).length
+  };
+}
+const CSV_H=['Date','Shipment/VRET','RA#','ASIN','Product','LPN','Amazon Classification','Damaged?','Used?','Sellable?','Missing','Flags','Notes','Verdict','Photos'];
+function toCSV(rows){return [CSV_H,...rows].map(r=>r.map(v=>'"'+String(v||'').replace(/"/g,'""')+'"').join(',')).join('\n');}
+function entryToRow(e){return[e.date,e.orderId,e.raNum,e.asin,e.sku,e.lpn,e.classification,e.damaged,e.used,e.sellable,e.missing,e.flags,e.notes,e.verdict,e.photoCount];}
+
+function saveIt(){
+  const e=getEntry();
+  // Mark product as inspected
+  if(ST.shipment?.products?.[ST.currentProductIdx])ST.shipment.products[ST.currentProductIdx].inspected=true;
+  history.unshift(e);
+  ST.sessionEntries.push(e);
+  localStorage.setItem('sedena_v3',JSON.stringify(history));
+  updateStats();
+  toast('✅ Saved!');
+}
+function expCSV(){
+  const e=getEntry();
+  dlCSV(toCSV([entryToRow(e)]),'sedena_return_'+e.asin+'.csv');
+}
+function copySheets(){
+  const e=getEntry();
+  const t=CSV_H.join('\t')+'\n'+entryToRow(e).join('\t');
+  navigator.clipboard.writeText(t).then(()=>toast('✅ Copied — paste into Google Sheets!')).catch(()=>alert('Failed'));
+}
+function shareEntry(){
+  const e=getEntry();
+  const t='SEDENA Return\n'+CSV_H.map((h,i)=>h+': '+entryToRow(e)[i]).join('\n');
+  if(navigator.share)navigator.share({title:'Return: '+e.asin,text:t});else copySheets();
+}
+function expAllCSV(all){
+  const entries=all?history:ST.sessionEntries;
+  if(!entries.length){toast('No entries to export.');return;}
+  dlCSV(toCSV(entries.map(entryToRow)),'sedena_returns_'+new Date().toISOString().split('T')[0]+'.csv');
+}
+function dlCSV(csv,name){
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=name;a.click();URL.revokeObjectURL(a.href);
+}
+function nextProduct(){
+  // Go back to S2 to scan next LPN
+  if(ST.shipment)renderS2();
+  document.getElementById('lpnInput').value='';
+  document.getElementById('lpnMatchResult').style.display='none';
+  document.getElementById('lpnResult').style.display='none';
+  goTo(2);
+}
+
+// ============================================================
+//  UTILS
+// ============================================================
+function toast(msg){
+  let t=document.getElementById('_toast');
+  if(!t){t=document.createElement('div');t.id='_toast';t.style.cssText='position:fixed;bottom:110px;left:50%;transform:translateX(-50%);background:var(--brand);color:var(--brand-light);padding:9px 18px;border-radius:20px;font-size:13px;font-weight:700;z-index:999;transition:opacity .3s;white-space:nowrap;';document.body.appendChild(t);}
+  t.textContent=msg;t.style.opacity='1';setTimeout(()=>t.style.opacity='0',2400);
+}
+
+// PWA
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();window._pwa=e;});
+if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});
+</script>
+</body>
+</html>
+
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
   <title>SEDENA Return Inspector</title>
