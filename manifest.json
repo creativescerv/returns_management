@@ -8,7 +8,61 @@
   "theme_color": "#482d1d",
   "orientation": "portrait",
   "icons": [
+    {{
+  "name": "SEDENA Return Inspector",{
+  "name": "SEDENA Return Inspector",
+  "short_name": "SEDENA Returns",
+  "description": "Amazon FBA return inspection and dispute audit tool for SEDENA bags",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#482d1d",
+  "theme_color": "#482d1d",
+  "orientation": "portrait",
+  "icons": [
     {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "productivity"],
+  "lang": "en",
+  "scope": "/"
+}
+
+  "short_name": "SEDENA Returns",
+  "description": "Amazon FBA return inspection and dispute audit tool for SEDENA bags",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#482d1d",
+  "theme_color": "#482d1d",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "productivity"],
+  "lang": "en",
+  "scope": "/"
+}
+
       "src": "icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
