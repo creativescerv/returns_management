@@ -130,7 +130,7 @@
       <h1>SEDENA Return Inspector</h1>
       <div class="sub">Amazon FBA · Returns Audit Tool</div>
     </div>
-    <div style="margin-left:auto;background:var(--accent);color:#fff;font-size:9px;font-weight:700;padding:3px 8px;border-radius:10px;letter-spacing:.5px;">v2 LIVE</div>
+    <div style="margin-left:auto;background:var(--accent);color:#fff;font-size:9px;font-weight:700;padding:3px 8px;border-radius:10px;letter-spacing:.5px;">v3 LIVE</div>
   </div>
   <div class="stepbar" id="stepbar">
     <div class="dot active" id="d0"></div>
@@ -555,8 +555,11 @@ async function handleVretPhoto(e){
   document.getElementById('aiExtractResult').style.display='none';
   try{
     const b64=await compressImage(file,1200,0.75);
-    document.getElementById('aiExtractLoading').innerHTML='<div class="spin"></div><div style="margin-top:10px;font-size:13px;font-weight:600;color:var(--text2);">🤖 AI is reading the label…</div><div style="font-size:11px;color:var(--text2);margin-top:4px;">Usually 5–10 seconds</div>';
-    const resp=await fetch(PROXY_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:'This is an Amazon vendor return label. Extract ALL info. Return ONLY valid JSON:\n{"vretId":"","raNum":"","processDate":"","classification":"","products":[{"lineNum":1,"asin":"","name":"","qty":1,"upc":""}]}'}]}]})});
+    document.getElementById('aiExtractLoading').innerHTML='<div class="spin"></div><div style="margin-top:10px;font-size:13px;font-weight:600;color:var(--text2);">🤖 AI is reading the label…</div><div style="font-size:11px;color:var(--text2);margin-top:4px;">Please wait up to 30 seconds</div>';
+    const ctrl1=new AbortController();
+    const t1=setTimeout(()=>ctrl1.abort(),60000);
+    const resp=await fetch(PROXY_URL,{method:'POST',signal:ctrl1.signal,headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:'This is an Amazon vendor return label. Extract ALL info. Return ONLY valid JSON:\n{"vretId":"","raNum":"","processDate":"","classification":"","products":[{"lineNum":1,"asin":"","name":"","qty":1,"upc":""}]}'}]}]})});
+    clearTimeout(t1);
     const data=await resp.json();
     const raw=data.content.map(b=>b.text||'').join('').replace(/```json|```/g,'').trim();
     const result=JSON.parse(raw);
