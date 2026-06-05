@@ -27,4 +27,9 @@ require('http').createServer((req, res) => {
     r.on('error', e => res.end(JSON.stringify({error: e.message})));
     r.write(body); r.end();
   });
-}).listen(process.env.PORT || 3000, () => console.log('Running'));
+}).listen(process.env.PORT || 3000, () => {
+  console.log('Running');
+  setInterval(() => {
+    require('https').get('https://returns-management.onrender.com/');
+  }, 14 * 60 * 1000);
+});
