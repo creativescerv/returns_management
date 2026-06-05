@@ -558,7 +558,7 @@ async function handleVretPhoto(e){
     document.getElementById('aiExtractLoading').innerHTML='<div class="spin"></div><div style="margin-top:10px;font-size:13px;font-weight:600;color:var(--text2);">🤖 AI is reading the label…</div><div style="font-size:11px;color:var(--text2);margin-top:4px;">Please wait up to 30 seconds</div>';
     const ctrl1=new AbortController();
     const t1=setTimeout(()=>ctrl1.abort(),60000);
-    const resp=await fetch(PROXY_URL,{method:'POST',signal:ctrl1.signal,headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:'This is an Amazon vendor return label. Extract ALL info. Return ONLY valid JSON:\n{"vretId":"","raNum":"","processDate":"","classification":"","products":[{"lineNum":1,"asin":"","name":"","qty":1,"upc":""}]}'}]}]})});
+    const resp=await fetch(PROXY_URL,{method:'POST',signal:ctrl1.signal,headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:1000,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:'This is an Amazon vendor return label. Extract ALL info. Return ONLY valid JSON:\n{"vretId":"","raNum":"","processDate":"","classification":"","products":[{"lineNum":1,"asin":"","name":"","qty":1,"upc":""}]}'}]}]})});
     clearTimeout(t1);
     const data=await resp.json();
     const raw=data.content.map(b=>b.text||'').join('').replace(/```json|```/g,'').trim();
@@ -654,7 +654,7 @@ async function handleLPNPhoto(e){
   document.getElementById('lpnResult').innerHTML='<div class="spin" style="margin:8px auto;"></div><div style="font-size:11px;color:var(--text2);text-align:center;margin-top:6px;">Reading LPN… (5–10 sec)</div>';
   try{
     const b64=await compressImage(file,800,0.8);
-    const resp=await fetch(PROXY_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:200,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:'Read the LPN number from this label. Return ONLY JSON: {"lpn":"the full LPN number as shown"}'}]}]})});
+    const resp=await fetch(PROXY_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:200,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:'Read the LPN number from this label. Return ONLY JSON: {"lpn":"the full LPN number as shown"}'}]}]})});
     const data=await resp.json();
     const result=JSON.parse(data.content.map(b=>b.text||'').join('').replace(/```json|```/g,'').trim());
     document.getElementById('lpnInput').value=result.lpn||'';
@@ -826,7 +826,7 @@ Return ONLY JSON:
   try{
     const resp=await fetch(PROXY_URL,{
       method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1200,messages:[{role:'user',content:prompt}]})
+      body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:1200,messages:[{role:'user',content:prompt}]})
     });
     clearInterval(tick);
     const data=await resp.json();
